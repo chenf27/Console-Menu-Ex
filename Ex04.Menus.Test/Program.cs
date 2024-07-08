@@ -23,6 +23,7 @@ namespace Ex04.Menus.Test
             mainMenu.AddMenuItem(subMenu1, action2_1);
             mainMenu.AddMenuItem(subMenu2, action2_2);
 
+            // Display the menu
             mainMenu.Show();
         }
     }
