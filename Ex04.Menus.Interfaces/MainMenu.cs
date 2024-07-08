@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Ex04.Menus.Interfaces
 {
@@ -10,35 +8,99 @@ namespace Ex04.Menus.Interfaces
     {
         private MenuItem m_MainMenu;
         private MenuItem m_CurrentMenuLevel;
+        public const bool v_IsMenu = true;
 
-        public MainMenu(MenuItem i_MenuItem)
+        public MainMenu(string i_Title)
         {
-            m_MainMenu = i_MenuItem;
+            m_MainMenu = new MenuItem(null, i_Title, v_IsMenu);
             m_CurrentMenuLevel = m_MainMenu;
         }
 
-        public void AddMenuItem()
+        public MenuItem MenuItem
         {
-            string title = "";
-            bool isMenu = true;
-            MenuItem newItem = new MenuItem(null, title, isMenu); //TODO change null as parent!!!!!!
-            
-            newItem.AddListener(this);
+            get
+            {
+                return m_MainMenu;
+            }
+        }
+
+        public void AddMenuItem(MenuItem i_ParentMenuItem, MenuItem i_NewMenuItem)
+        {
+            if (i_ParentMenuItem.IsMenu)
+            {
+                i_ParentMenuItem.AddSubMenuItem(i_NewMenuItem);
+                i_NewMenuItem.AddListener(this);
+            }
         }
 
         void ISelectedItem.Selected(MenuItem i_Item)
         {
             if(i_Item.IsMenu)
             {
-                i_Item.Show();
+                m_CurrentMenuLevel = i_Item;
             }
-            /// TODO implement
+            else
+            {
+                i_Item.Execute();
+            }
         }
 
-        public void Show()
+        public void Show() //TODO add Console.Clear() somehow
         {
-            Console.Clear();
-            m_CurrentMenuLevel.Show();
+            while(true)
+            {
+                try
+                {
+                    m_CurrentMenuLevel.Show();
+                    MenuItem menuItemFromUserChoice = handleUserInput(m_CurrentMenuLevel);
+
+                    if (menuItemFromUserChoice != null)
+                    {
+                        if(menuItemFromUserChoice.IsMenu)
+                        {
+                            m_CurrentMenuLevel = menuItemFromUserChoice;
+                        }
+                        else
+                        {
+                            menuItemFromUserChoice.Execute();
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+        }
+
+        private MenuItem handleUserInput(MenuItem i_currentMenuItemLevel)
+        {
+            MenuItem menuItemFromUserChoice;
+            bool userChoiceParsedSuccessfully = int.TryParse(Console.ReadLine(), out int userChoice);
+            int numOfElementsInMenu = i_currentMenuItemLevel.GetSubMenuItems().Count;
+
+            if (userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
+            {
+                if(userChoice == 0)
+                {
+                    menuItemFromUserChoice = i_currentMenuItemLevel.ParentNode;
+                }
+                else
+                {
+                    menuItemFromUserChoice = i_currentMenuItemLevel.GetSubMenuItems().ElementAt(userChoice - 1);
+                }
+                
+                return menuItemFromUserChoice;
+            }
+            else
+            {
+                throw new ArgumentException("Please enter a valid choice!");
+            }
+            
         }
     }
 }

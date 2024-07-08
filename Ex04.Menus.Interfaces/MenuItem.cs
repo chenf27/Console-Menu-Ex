@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ex04.Menus.Interfaces
 {
@@ -11,8 +8,10 @@ namespace Ex04.Menus.Interfaces
         private List<ISelectedItem> m_SelectedListeners;
         private readonly MenuItem r_ParentNode;
         private readonly List<MenuItem> r_SubMenuItems;
+        private readonly IMenuAction r_MenuAction;
         private readonly string r_Title;
         private readonly bool r_IsMenu;
+        private const bool v_Menu = true;
         private const bool v_Selected = true;
         private bool m_Selected = !v_Selected;
         
@@ -27,7 +26,15 @@ namespace Ex04.Menus.Interfaces
                 r_SubMenuItems = new List<MenuItem>();
             }
         }
-        
+
+        public MenuItem(MenuItem i_ParentNode, string i_Title, IMenuAction i_MenuAction)
+        {
+            r_ParentNode = i_ParentNode;
+            r_Title = i_Title;
+            r_IsMenu = !v_Menu;
+            r_MenuAction = i_MenuAction;
+        }
+
         public string Title
         { 
             get 
@@ -69,6 +76,11 @@ namespace Ex04.Menus.Interfaces
             }
         }
 
+        public List<MenuItem> GetSubMenuItems()
+        {
+            return r_SubMenuItems;
+        }
+
         public void AddSubMenuItem(MenuItem i_MenuItem)
         {
             if(IsMenu)
@@ -108,15 +120,26 @@ namespace Ex04.Menus.Interfaces
         {
             if (IsMenu)
             {
+                int itemIndexInList = 1;
+                string backOrExitPrompt = r_ParentNode == null ? "Exit" : "Back";
+
                 Console.WriteLine(Title);
                 Console.WriteLine("==============");
                 foreach(MenuItem item in r_SubMenuItems)
                 {
-                    //TODO add number before each title
-                    Console.WriteLine(item.Title);
-
-                    //TODO add select choice
+                    Console.WriteLine("{0}. {1}", itemIndexInList++, item.Title);
                 }
+
+                Console.WriteLine("0. {0}", backOrExitPrompt);
+                Console.WriteLine("Please enter your choice (1-{0} or 0 for {1}):", itemIndexInList - 1, backOrExitPrompt);
+            }
+        }
+
+        public void Execute()
+        {
+            if(!IsMenu && r_MenuAction != null)
+            {
+                r_MenuAction.Execute();
             }
         }
     }

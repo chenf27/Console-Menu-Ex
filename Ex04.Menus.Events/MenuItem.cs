@@ -43,11 +43,11 @@ namespace Ex04.Menus.Events
             }
         }
 
-        public void Selected()
+        /*public void Selected()
         {
             SelectEventArgs e = new SelectEventArgs();
             OnMenuItemSelectedOccurred(e);
-        }
+        }*/
 
         protected virtual void OnMenuItemSelectedOccurred(SelectEventArgs e)
         {
