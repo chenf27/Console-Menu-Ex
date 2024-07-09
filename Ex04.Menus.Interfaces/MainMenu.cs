@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 
 namespace Ex04.Menus.Interfaces
 {
     public class MainMenu : ISelectedItem
     {
+        private const string k_NotAMenuErrorMessage = "The parent item you inserted is not a menu! you can't create a sub menu for it.";
+        private const string k_NotANumberErrorMessage = "Please enter a valid integer!";
         private MenuItem m_MainMenu;
         private MenuItem m_CurrentMenuLevel;
         public const bool v_IsMenu = true;
@@ -30,6 +31,10 @@ namespace Ex04.Menus.Interfaces
             {
                 i_ParentMenuItem.AddSubMenuItem(i_NewMenuItem);
                 i_NewMenuItem.AddListener(this);
+            }
+            else
+            {
+                throw new ArgumentException(k_NotAMenuErrorMessage, i_ParentMenuItem.Title);
             }
         }
 
@@ -70,9 +75,9 @@ namespace Ex04.Menus.Interfaces
                         break;
                     }
                 }
-                catch (ArgumentException e)
+                catch (Exception thrownException)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(thrownException.Message);
                 }
             }
         }
@@ -98,9 +103,15 @@ namespace Ex04.Menus.Interfaces
             }
             else
             {
-                throw new ArgumentException("Please enter a valid choice!");
+                if(!userChoiceParsedSuccessfully)
+                {
+                    throw new FormatException(k_NotANumberErrorMessage);
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("Your choice must be between 0 and {0}!", numOfElementsInMenu));
+                }
             }
-            
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Ex04.Menus.Interfaces;
+using Ex04.Menus.Events;
 using System;
 
 namespace Ex04.Menus.Test
@@ -7,40 +8,120 @@ namespace Ex04.Menus.Test
     {
         public static void Main()
         {
-            MainMenu mainMenu = new MainMenu("Main Menu");
-            MenuItem mainMenuItem = mainMenu.MenuItem;
-            MenuItem subMenu1 = new MenuItem(mainMenuItem, "sub menu 1", true);
-            MenuItem subMenu2 = new MenuItem(mainMenuItem, "sub menu 2", true);
-            MenuItem action1_1 = new MenuItem(mainMenuItem, "action 1", new Action1());
-            MenuItem action1_2 = new MenuItem(mainMenuItem, "action 1", new Action1());
-            MenuItem action2_1 = new MenuItem(mainMenuItem, "action 2", new Action2());
-            MenuItem action2_2 = new MenuItem(mainMenuItem, "action 2", new Action2());
+            Run();
+        }
+        
+        public static void Run()
+        {
+            try
+            {
+                Interfaces.MainMenu mainMenuInterfaces = CreateMainMenuInterfaces();
+                mainMenuInterfaces.Show();
 
-            mainMenu.AddMenuItem(mainMenuItem, subMenu1);
-            mainMenu.AddMenuItem(mainMenuItem, subMenu2);
-            mainMenu.AddMenuItem(mainMenuItem, action1_1);
-            mainMenu.AddMenuItem(subMenu1, action1_2);
-            mainMenu.AddMenuItem(subMenu1, action2_1);
-            mainMenu.AddMenuItem(subMenu2, action2_2);
+                Events.MainMenu mainMenuEvents = CreateMainMenuEvents();
+                mainMenuEvents.Show();
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine("{0}.", ex.Message, ex.ParamName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
-            // Display the menu
-            mainMenu.Show();
+        }
+
+        public static Interfaces.MainMenu CreateMainMenuInterfaces() 
+        {
+            Interfaces.MainMenu mainMenu = new Interfaces.MainMenu("Interfaces Main Menu");
+            Interfaces.MenuItem mainMenuItem = mainMenu.MenuItem;
+            Interfaces.MenuItem versionsAndCapitalsMenu = new Interfaces.MenuItem(mainMenuItem, "Versions and Capitals", true);
+            Interfaces.MenuItem showDateTimeMenu = new Interfaces.MenuItem(mainMenuItem, "Show Date/Time", true);
+            Interfaces.MenuItem showVersion = new Interfaces.MenuItem(versionsAndCapitalsMenu, "Show Version", new ShowVersion());
+            Interfaces.MenuItem CountCapitals = new Interfaces.MenuItem(versionsAndCapitalsMenu, "Count Capitals", new CountCapitals());
+            Interfaces.MenuItem showTime = new Interfaces.MenuItem(showDateTimeMenu, "Show Time", new ShowTime());
+            Interfaces.MenuItem showDate = new Interfaces.MenuItem(showDateTimeMenu, "Show Date", new ShowDate());
+
+
+            mainMenu.AddMenuItem(mainMenuItem, versionsAndCapitalsMenu);
+            mainMenu.AddMenuItem(mainMenuItem, showDateTimeMenu);
+            mainMenu.AddMenuItem(versionsAndCapitalsMenu, showVersion);
+            mainMenu.AddMenuItem(versionsAndCapitalsMenu, CountCapitals);
+            mainMenu.AddMenuItem(showDateTimeMenu, showTime);
+            mainMenu.AddMenuItem(showDateTimeMenu, showDate);
+                
+            return mainMenu;
+        }
+        
+        public static Events.MainMenu CreateMainMenuEvents() //TODO add exceptions, also make AddMenuItem the same for both versions (change mine or yours)
+        {
+            Action showTimeAction = () => Console.WriteLine("Current time: {0}", DateTime.Now.ToString("HH:mm:ss"));
+            Action showDateAction = () => Console.WriteLine("Current Date: {0}", DateTime.Now.ToShortDateString());
+
+            Events.MainMenu mainMenu = new Events.MainMenu("Delegates Main Menu");
+            Events.MenuItem mainMenuItem = mainMenu.MainMenuItem;
+            Events.MenuItem versionsAndCapitalsMenu = new Events.MenuItem(mainMenuItem, "Versions and Capitals", true);
+            Events.MenuItem ShowDateTimeMenu = new Events.MenuItem(mainMenuItem, "Show Date/Time", true);
+            Events.MenuItem actionItem1 = new Events.MenuItem(versionsAndCapitalsMenu, "Show Time", false);
+            Events.MenuItem actionItem2 = new Events.MenuItem(ShowDateTimeMenu, "Show Date", false);
+            
+            actionItem1.SetAction(showTimeAction);
+            actionItem2.SetAction(showDateAction);
+
+            versionsAndCapitalsMenu.AddSubMenuItem(actionItem1);
+            ShowDateTimeMenu.AddSubMenuItem(actionItem2);
+            mainMenuItem.AddSubMenuItem(versionsAndCapitalsMenu);
+            mainMenuItem.AddSubMenuItem(ShowDateTimeMenu);
+
+            return mainMenu;
         }
     }
 
-    public class Action1 : IMenuAction
+
+    public class ShowVersion : IMenuAction
     {
         void IMenuAction.Execute() 
         {
-            Console.WriteLine("Action 1 executed!");
+            Console.WriteLine("App Version: 24.2.4.9504");
         }
     }
     
-    public class Action2 : IMenuAction
+    public class CountCapitals : IMenuAction
     {
         void IMenuAction.Execute() 
         {
-            Console.WriteLine("Action 2 executed!");
+            string userInput;
+            int capitalLettersCounter = 0;
+
+            Console.WriteLine("Please write a sentence:");
+            userInput = Console.ReadLine();
+            
+            foreach(char character in userInput)
+            {
+                if(Char.IsUpper(character))
+                {
+                    capitalLettersCounter++;
+                }
+            }
+
+            Console.WriteLine("Number of capital letter(s) in your sentence: {0}", capitalLettersCounter);
+        }
+    }
+
+    public class ShowTime : IMenuAction
+    {
+        void IMenuAction.Execute()
+        {
+            Console.WriteLine("Current time: {0}", DateTime.Now.ToString("HH:mm:ss"));
+        }
+    }
+
+    public class ShowDate : IMenuAction
+    {
+        void IMenuAction.Execute()
+        {
+            Console.WriteLine("Current Date: {0}", DateTime.Now.ToShortDateString());
         }
     }
 }

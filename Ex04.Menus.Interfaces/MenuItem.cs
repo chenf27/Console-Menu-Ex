@@ -35,7 +35,7 @@ namespace Ex04.Menus.Interfaces
             r_MenuAction = i_MenuAction;
         }
 
-        public string Title
+        internal string Title
         { 
             get 
             { 
@@ -43,7 +43,7 @@ namespace Ex04.Menus.Interfaces
             }
         }
 
-        public bool IsMenu
+        internal bool IsMenu
         {
             get
             {
@@ -68,7 +68,7 @@ namespace Ex04.Menus.Interfaces
             }
         }
 
-        public MenuItem ParentNode
+        internal MenuItem ParentNode
         {
             get
             {
@@ -76,19 +76,17 @@ namespace Ex04.Menus.Interfaces
             }
         }
 
-        public List<MenuItem> GetSubMenuItems()
+        internal List<MenuItem> GetSubMenuItems()
         {
             return r_SubMenuItems;
         }
 
-        public void AddSubMenuItem(MenuItem i_MenuItem)
+        internal void AddSubMenuItem(MenuItem i_MenuItem)
         {
             if(IsMenu)
             {
                 r_SubMenuItems.Add(i_MenuItem);
             }
-
-            //TODO potential place for ArgumentException if IsMenu == false
         }
         
         public void AddListener(ISelectedItem i_MenuItem)
@@ -116,7 +114,7 @@ namespace Ex04.Menus.Interfaces
             Selected = !v_Selected;
         }
 
-        public void Show()
+        internal void Show()
         {
             if (IsMenu)
             {
@@ -135,7 +133,7 @@ namespace Ex04.Menus.Interfaces
             }
         }
 
-        public void Execute()
+        internal void Execute()
         {
             if(!IsMenu && r_MenuAction != null)
             {
