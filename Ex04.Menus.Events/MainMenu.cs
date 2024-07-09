@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Linq;
 
 namespace Ex04.Menus.Events
 {
@@ -39,12 +39,12 @@ namespace Ex04.Menus.Events
             }
         }
 
-        private void MenuItemSelectOccurredHandler(object sender, MenuItemSelectedEventArgs e)
+        private void MenuItemSelectOccurredHandler(object i_Sender, MenuItemSelectedEventArgs i_EventArguments)
         {
-            m_CurrentItem = e.SelectedMenuItem;
-            if (!m_CurrentItem.IsMenu)
+            MenuItem menuItem = i_EventArguments.SelectedMenuItem;
+            if (!menuItem.IsMenu)
             {
-                ExecuteAction(m_CurrentItem);
+                ExecuteAction(menuItem);
             }
         }
 
@@ -54,54 +54,72 @@ namespace Ex04.Menus.Events
             {
                 i_MenuItem.Method.Invoke();
             }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine($"Executing action for {i_MenuItem.Title}...");
-                Console.WriteLine("Press any key to return to the menu...");
-                Console.ReadKey();
-            }
         }
 
         public void Show()
         {
-            //TODO WHILE TRUE ASK
             while (true)
             {
-                m_CurrentItem.Show();
-                Console.Write("Select an option: ");
-                if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 0 && choice <= m_CurrentItem.SubMenuItems.Count)
+                try
                 {
-                    if (choice == 0)
+                    m_CurrentItem.Show();
+                    MenuItem menuItemFromUserChoice = handleUserInput(m_CurrentItem);
+                    if (menuItemFromUserChoice != null)
                     {
-                        if (m_CurrentItem.ParentNode != null)
+                        if(menuItemFromUserChoice.IsMenu)
                         {
-                            m_CurrentItem = m_CurrentItem.ParentNode;
+                            m_CurrentItem = menuItemFromUserChoice;
                         }
                         else
                         {
-                            break;
+                            m_CurrentItem = menuItemFromUserChoice.ParentNode;
                         }
+                        menuItemFromUserChoice.MenuItemSelected();  
                     }
                     else
                     {
-                        MenuItem selectedMenuItem = m_CurrentItem.SubMenuItems[choice - 1];
-                        selectedMenuItem.MenuItemSelected();
-                        if(selectedMenuItem.IsMenu)
-                        {
-                            m_CurrentItem = selectedMenuItem;
-                        }
-                        else
-                        {
-                            m_CurrentItem = m_CurrentItem.Parent;
-                        }
+                        break;
                     }
+
                 }
-                else
+                catch (Exception thrownException)
                 {
-                    Console.WriteLine("Invalid choice, please try again.");
+                    Console.WriteLine(thrownException.Message);
                 }
             }
         }
+
+        private MenuItem handleUserInput(MenuItem i_currentMenuItemLevel)
+        {
+            MenuItem menuItemFromUserChoice;
+            bool userChoiceParsedSuccessfully = int.TryParse(Console.ReadLine(), out int userChoice);
+            int numOfElementsInMenu = i_currentMenuItemLevel.GetSubMenuItems().Count;
+
+            if (userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
+            {
+                if (userChoice == 0)
+                {
+                    menuItemFromUserChoice = i_currentMenuItemLevel.ParentNode;
+                }
+                else
+                {
+                    menuItemFromUserChoice = i_currentMenuItemLevel.GetSubMenuItems().ElementAt(userChoice - 1);
+                }
+
+                return menuItemFromUserChoice;
+            }
+            else
+            {
+                if (!userChoiceParsedSuccessfully)
+                {
+                    throw new FormatException(k_NotANumberErrorMessage);
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("Your choice must be between 0 and {0}!", numOfElementsInMenu));
+                }
+            }
+        }
+
     }
 }

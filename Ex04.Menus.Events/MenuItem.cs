@@ -24,7 +24,7 @@ namespace Ex04.Menus.Events
         private readonly MenuItem r_ParentNode;
         private readonly bool r_IsMenu;
         private readonly List<MenuItem> r_SubMenuItems;
-        private readonly Action r_Method;
+        private readonly Action r_MethodDelegate;
         private const bool v_Menu = true;
 
         public event MenuItemSelectedEventHandler MenuItemSelectOccurred;
@@ -46,18 +46,10 @@ namespace Ex04.Menus.Events
             r_ParentNode = i_ParentNode;
             r_Title = i_Title;
             r_IsMenu = !v_Menu;
-            r_Method = i_MenuAction;
+            r_MethodDelegate = i_MenuAction;
         }
 
-        public MenuItem Parent
-        {
-            get
-            {
-                return r_ParentNode;
-            }
-        }
-
-        public string Title
+        internal string Title
         {
             get
             {
@@ -65,31 +57,20 @@ namespace Ex04.Menus.Events
             }
         }
 
-        public List<MenuItem> SubMenuItems
+        internal List<MenuItem> GetSubMenuItems()
+        {
+            return r_SubMenuItems;
+        }
+
+        internal Action Method
         {
             get
             {
-                //ERROR!
-                if (r_SubMenuItems == null)
-                {
-                    return new List<MenuItem>();
-                }
-                else
-                {
-                    return r_SubMenuItems;
-                }
+                return r_MethodDelegate;
             }
         }
 
-        public Action Method
-        {
-            get
-            {
-                return r_Method;
-            }
-        }
-
-        public bool IsMenu
+        internal bool IsMenu
         {
             get
             {
@@ -97,7 +78,7 @@ namespace Ex04.Menus.Events
             }
         }
 
-        public MenuItem ParentNode
+        internal MenuItem ParentNode
         {
             get
             {
@@ -124,20 +105,15 @@ namespace Ex04.Menus.Events
             }
         }
 
-        public void AddSubMenuItem(MenuItem i_SubMenuItem)
+        internal void AddSubMenuItem(MenuItem i_SubMenuItem)
         {
-            //TODO EXEPTION HANDLE
             if (r_IsMenu)
             {
                 r_SubMenuItems.Add(i_SubMenuItem);
             }
-            else
-            {
-                throw new InvalidOperationException("Cannot add sub-menu items to a non-menu item.");
-            }
         }
 
-        public void MenuItemSelected()
+        internal void MenuItemSelected()
         {
             OnMenuItemSelectOccurred(new MenuItemSelectedEventArgs(this));
         }
@@ -149,7 +125,5 @@ namespace Ex04.Menus.Events
                 MenuItemSelectOccurred.Invoke(this, i_EventArguments);
             }
         }
-
     }
-
 }
