@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 namespace Ex04.Menus.Events
 {
-    
     public class MenuItemSelectedEventArgs : EventArgs
     {
-        public MenuItem SelectedMenuItem { get; }
+        public MenuItem SelectedMenuItem
+        {
+            get;
+        }
 
         public MenuItemSelectedEventArgs(MenuItem i_SelectedMenuItem)
         {
@@ -23,7 +24,8 @@ namespace Ex04.Menus.Events
         private readonly MenuItem r_ParentNode;
         private readonly bool r_IsMenu;
         private readonly List<MenuItem> r_SubMenuItems;
-        private Action m_Method;
+        private readonly Action r_Method;
+        private const bool v_Menu = true;
 
         public event MenuItemSelectedEventHandler MenuItemSelectOccurred;
 
@@ -36,6 +38,22 @@ namespace Ex04.Menus.Events
             if (i_IsMenu)
             {
                 r_SubMenuItems = new List<MenuItem>();
+            }
+        }
+
+        public MenuItem(MenuItem i_ParentNode, string i_Title, Action i_MenuAction)
+        {
+            r_ParentNode = i_ParentNode;
+            r_Title = i_Title;
+            r_IsMenu = !v_Menu;
+            r_Method = i_MenuAction;
+        }
+
+        public MenuItem Parent
+        {
+            get
+            {
+                return r_ParentNode;
             }
         }
 
@@ -67,7 +85,7 @@ namespace Ex04.Menus.Events
         {
             get
             {
-                return m_Method;
+                return r_Method;
             }
         }
 
@@ -86,11 +104,24 @@ namespace Ex04.Menus.Events
                 return r_ParentNode;
             }
         }
-    
-        //TODO IN SET
-        public void SetAction(Action i_Method)
+
+        internal void Show()
         {
-            m_Method = i_Method;
+            if (IsMenu)
+            {
+                int itemIndexInList = 1;
+                string backOrExitPrompt = r_ParentNode == null ? "Exit" : "Back";
+
+                Console.WriteLine(Title);
+                Console.WriteLine("==============");
+                foreach (MenuItem item in r_SubMenuItems)
+                {
+                    Console.WriteLine("{0}. {1}", itemIndexInList++, item.Title);
+                }
+
+                Console.WriteLine("0. {0}", backOrExitPrompt);
+                Console.WriteLine("Please enter your choice (1-{0} or 0 for {1}):", itemIndexInList - 1, backOrExitPrompt);
+            }
         }
 
         public void AddSubMenuItem(MenuItem i_SubMenuItem)

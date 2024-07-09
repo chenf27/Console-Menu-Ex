@@ -7,36 +7,45 @@ namespace Ex04.Menus.Events
     {
         private MenuItem m_MainMenu;
         private MenuItem m_CurrentItem;
+        private const string k_NotAMenuErrorMessage = "The parent item you inserted is not a menu! you can't create a sub menu for it.";
+        private const string k_NotANumberErrorMessage = "Please enter a valid integer!";
+        public const bool v_IsMenu = true;
+
+        public MainMenu(string i_Title)
+        {
+            m_MainMenu = new MenuItem(null, i_Title, v_IsMenu);
+            m_CurrentItem = m_MainMenu;
+            m_MainMenu.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(MenuItemSelectOccurredHandler);
+        }
 
         public MenuItem MainMenuItem
         {
             get
             {
-                return m_MainMenu; 
+                return m_MainMenu;
             }
-        } 
-
-        public MainMenu(string i_Title)
-        {
-            m_MainMenu = new MenuItem(null, i_Title, true);
-            m_CurrentItem = m_MainMenu;
         }
 
         public void AddMenuItem(MenuItem i_ParentMenu, MenuItem i_SubMenuItem)
         {
-            i_ParentMenu.AddSubMenuItem(i_SubMenuItem);
-            i_SubMenuItem.MenuItemSelectOccurred += MenuItemSelectOccurredHandler;
+            if(i_ParentMenu.IsMenu)
+            {
+                i_ParentMenu.AddSubMenuItem(i_SubMenuItem);
+                i_SubMenuItem.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(MenuItemSelectOccurredHandler);
+            }
+            else
+            {
+                throw new ArgumentException(k_NotAMenuErrorMessage, i_ParentMenu.Title);
+            }
         }
 
         private void MenuItemSelectOccurredHandler(object sender, MenuItemSelectedEventArgs e)
         {
             m_CurrentItem = e.SelectedMenuItem;
-
             if (!m_CurrentItem.IsMenu)
             {
                 ExecuteAction(m_CurrentItem);
             }
-            
         }
 
         private void ExecuteAction(MenuItem i_MenuItem)
@@ -52,50 +61,47 @@ namespace Ex04.Menus.Events
                 Console.WriteLine("Press any key to return to the menu...");
                 Console.ReadKey();
             }
-
-            m_CurrentItem = m_MainMenu;
         }
-
 
         public void Show()
         {
-            
+            //TODO WHILE TRUE ASK
             while (true)
             {
-                DisplayMenuOptions(m_CurrentItem);
-
+                m_CurrentItem.Show();
                 Console.Write("Select an option: ");
                 if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 0 && choice <= m_CurrentItem.SubMenuItems.Count)
                 {
                     if (choice == 0)
                     {
-                        break;
+                        if (m_CurrentItem.ParentNode != null)
+                        {
+                            m_CurrentItem = m_CurrentItem.ParentNode;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-
-                    MenuItem selectedMenuItem = m_CurrentItem.SubMenuItems[choice - 1];
-                    selectedMenuItem.MenuItemSelected();
+                    else
+                    {
+                        MenuItem selectedMenuItem = m_CurrentItem.SubMenuItems[choice - 1];
+                        selectedMenuItem.MenuItemSelected();
+                        if(selectedMenuItem.IsMenu)
+                        {
+                            m_CurrentItem = selectedMenuItem;
+                        }
+                        else
+                        {
+                            m_CurrentItem = m_CurrentItem.Parent;
+                        }
+                    }
                 }
                 else
                 {
                     Console.WriteLine("Invalid choice, please try again.");
                 }
-
             }
         }
-
-        private void DisplayMenuOptions(MenuItem i_Menu)
-        {
-            Console.Clear();
-            Console.WriteLine(i_Menu.Title);
-            Console.WriteLine(new string('-', 20));
-
-            for (int i = 0; i < i_Menu.SubMenuItems.Count; i++)
-            {
-                Console.WriteLine($"{i + 1}. {i_Menu.SubMenuItems[i].Title}");
-            }
-
-            Console.WriteLine("0. Back");
-        }
-
     }
 }
