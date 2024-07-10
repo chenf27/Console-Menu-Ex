@@ -66,7 +66,7 @@ namespace Ex04.Menus.Test
             Events.MenuItem showTime = new Events.MenuItem(showDateTimeMenu, "Show Time", showTimeAction);
             Events.MenuItem showDate = new Events.MenuItem(showDateTimeMenu, "Show Date", showDateAction);
             Events.MenuItem showVersion = new Events.MenuItem(versionsAndCapitalsMenu, "Show Version", showVersionAction);
-            Events.MenuItem showCapitals = new Events.MenuItem(versionsAndCapitalsMenu, "Show Capitals", CountCapitalLetters);
+            Events.MenuItem showCapitals = new Events.MenuItem(versionsAndCapitalsMenu, "Count Capitals", CountCapitalLetters);
 
             mainMenu.AddMenuItem(mainMenuItem, versionsAndCapitalsMenu);
             mainMenu.AddMenuItem(mainMenuItem, showDateTimeMenu);
