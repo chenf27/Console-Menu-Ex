@@ -11,7 +11,7 @@ namespace Ex04.Menus.Interfaces
         private readonly IMenuAction r_MenuAction;
         private readonly string r_Title;
         private readonly bool r_IsMenu;
-        private const bool v_Menu = true;
+        private const bool v_IsMenu = true;
         private const bool v_Selected = true;
         private bool m_Selected = !v_Selected;
         
@@ -27,11 +27,8 @@ namespace Ex04.Menus.Interfaces
             }
         }
 
-        public MenuItem(MenuItem i_ParentNode, string i_Title, IMenuAction i_MenuAction)
+        public MenuItem(MenuItem i_ParentNode, string i_Title, IMenuAction i_MenuAction) : this(i_ParentNode, i_Title, !v_IsMenu)
         {
-            r_ParentNode = i_ParentNode;
-            r_Title = i_Title;
-            r_IsMenu = !v_Menu;
             r_MenuAction = i_MenuAction;
         }
 
@@ -60,7 +57,6 @@ namespace Ex04.Menus.Interfaces
             set
             {
                 m_Selected = value;
-                
                 if(m_Selected)
                 {
                     notifyAllListeners();
@@ -89,26 +85,26 @@ namespace Ex04.Menus.Interfaces
             }
         }
         
-        public void AddListener(ISelectedItem i_MenuItem)
+        public void AddListener(ISelectedItem i_SelectedListener)
         {
-            if (m_SelectedListeners == null)
+            if(m_SelectedListeners == null)
             {
                 m_SelectedListeners = new List<ISelectedItem>();
             }
 
-            m_SelectedListeners.Add(i_MenuItem);
+            m_SelectedListeners.Add(i_SelectedListener);
         }
 
-        public void RemoveListener(ISelectedItem i_MenuItem)
+        public void RemoveListener(ISelectedItem i_SelectedListener)
         {
-            m_SelectedListeners.Remove(i_MenuItem);
+            m_SelectedListeners.Remove(i_SelectedListener);
         }
      
         private void notifyAllListeners()
         {
-            foreach(ISelectedItem selectedItem in m_SelectedListeners)
+            foreach(ISelectedItem selectedListener in m_SelectedListeners)
             {
-                selectedItem.Selected(this);
+                selectedListener.Selected(this);
             }
 
             Selected = !v_Selected;
@@ -116,7 +112,7 @@ namespace Ex04.Menus.Interfaces
 
         internal void Show()
         {
-            if (IsMenu)
+            if(IsMenu)
             {
                 int itemIndexInList = 1;
                 string backOrExitPrompt = r_ParentNode == null ? "Exit" : "Back";

@@ -5,7 +5,7 @@ namespace Ex04.Menus.Events
 {
     public class MainMenu
     {
-        private MenuItem m_MainMenu;
+        private readonly MenuItem r_MainMenu;
         private MenuItem m_CurrentItem;
         private const string k_NotAMenuErrorMessage = "The parent item you inserted is not a menu! you can't create a sub menu for it.";
         private const string k_NotANumberErrorMessage = "Please enter a valid integer!";
@@ -13,16 +13,16 @@ namespace Ex04.Menus.Events
 
         public MainMenu(string i_Title)
         {
-            m_MainMenu = new MenuItem(null, i_Title, v_IsMenu);
-            m_CurrentItem = m_MainMenu;
-            m_MainMenu.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(MenuItemSelectOccurredHandler);
+            r_MainMenu = new MenuItem(null, i_Title, v_IsMenu);
+            m_CurrentItem = r_MainMenu;
+            r_MainMenu.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(MenuItemSelectOccurredHandler);
         }
 
         public MenuItem MainMenuItem
         {
             get
             {
-                return m_MainMenu;
+                return r_MainMenu;
             }
         }
 
@@ -42,7 +42,7 @@ namespace Ex04.Menus.Events
         private void MenuItemSelectOccurredHandler(object i_Sender, MenuItemSelectedEventArgs i_EventArguments)
         {
             MenuItem menuItem = i_EventArguments.SelectedMenuItem;
-            if (!menuItem.IsMenu)
+            if(!menuItem.IsMenu)
             {
                 ExecuteAction(menuItem);
             }
@@ -50,21 +50,22 @@ namespace Ex04.Menus.Events
 
         private void ExecuteAction(MenuItem i_MenuItem)
         {
-            if (i_MenuItem.Method != null)
+            if(i_MenuItem.Method != null)
             {
                 i_MenuItem.Method.Invoke();
             }
         }
 
-        public void Show()
+        public void Show() //TOTO fix screen clear
         {
-            while (true)
+            while(true)
             {
                 try
                 {
+                    Console.Clear();
                     m_CurrentItem.Show();
                     MenuItem menuItemFromUserChoice = handleUserInput(m_CurrentItem);
-                    if (menuItemFromUserChoice != null)
+                    if(menuItemFromUserChoice != null)
                     {
                         if(menuItemFromUserChoice.IsMenu)
                         {
@@ -85,6 +86,7 @@ namespace Ex04.Menus.Events
                 catch (Exception thrownException)
                 {
                     Console.WriteLine(thrownException.Message);
+                    delayScreenClear();
                 }
             }
         }
@@ -95,9 +97,9 @@ namespace Ex04.Menus.Events
             bool userChoiceParsedSuccessfully = int.TryParse(Console.ReadLine(), out int userChoice);
             int numOfElementsInMenu = i_currentMenuItemLevel.GetSubMenuItems().Count;
 
-            if (userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
+            if(userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
             {
-                if (userChoice == 0)
+                if(userChoice == 0)
                 {
                     menuItemFromUserChoice = i_currentMenuItemLevel.ParentNode;
                 }
@@ -110,7 +112,7 @@ namespace Ex04.Menus.Events
             }
             else
             {
-                if (!userChoiceParsedSuccessfully)
+                if(!userChoiceParsedSuccessfully)
                 {
                     throw new FormatException(k_NotANumberErrorMessage);
                 }
@@ -121,5 +123,10 @@ namespace Ex04.Menus.Events
             }
         }
 
+        private void delayScreenClear()
+        {
+            Console.WriteLine("Press enter to continue");
+            Console.ReadLine();
+        }
     }
 }

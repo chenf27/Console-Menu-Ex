@@ -7,27 +7,29 @@ namespace Ex04.Menus.Interfaces
     {
         private const string k_NotAMenuErrorMessage = "The parent item you inserted is not a menu! you can't create a sub menu for it.";
         private const string k_NotANumberErrorMessage = "Please enter a valid integer!";
-        private MenuItem m_MainMenu;
+        private const bool v_SelectMenuItem = true;
+        private const bool v_IsMenu = true;
+        private readonly MenuItem r_MainMenu;
         private MenuItem m_CurrentMenuLevel;
-        public const bool v_IsMenu = true;
 
         public MainMenu(string i_Title)
         {
-            m_MainMenu = new MenuItem(null, i_Title, v_IsMenu);
-            m_CurrentMenuLevel = m_MainMenu;
+            r_MainMenu = new MenuItem(null, i_Title, v_IsMenu);
+            r_MainMenu.AddListener(this);
+            m_CurrentMenuLevel = r_MainMenu;
         }
 
         public MenuItem MenuItem
         {
             get
             {
-                return m_MainMenu;
+                return r_MainMenu;
             }
         }
 
         public void AddMenuItem(MenuItem i_ParentMenuItem, MenuItem i_NewMenuItem)
         {
-            if (i_ParentMenuItem.IsMenu)
+            if(i_ParentMenuItem.IsMenu)
             {
                 i_ParentMenuItem.AddSubMenuItem(i_NewMenuItem);
                 i_NewMenuItem.AddListener(this);
@@ -47,30 +49,22 @@ namespace Ex04.Menus.Interfaces
             else
             {
                 i_Item.Execute();
+                delayScreenClear();
             }
         }
 
-        public void Show() //TODO add Console.Clear() somehow
+        public void Show()
         {
             while(true)
             {
                 try
                 {
-                    m_CurrentMenuLevel.Show();
-                    MenuItem menuItemFromUserChoice = handleUserInput(m_CurrentMenuLevel);
+                    bool userPressedExit;
 
-                    if (menuItemFromUserChoice != null)
-                    {
-                        if(menuItemFromUserChoice.IsMenu)
-                        {
-                            m_CurrentMenuLevel = menuItemFromUserChoice;
-                        }
-                        else
-                        {
-                            menuItemFromUserChoice.Execute();
-                        }
-                    }
-                    else
+                    Console.Clear();
+                    m_CurrentMenuLevel.Show();
+                    userPressedExit = handleUserInput(m_CurrentMenuLevel);
+                    if(userPressedExit)
                     {
                         break;
                     }
@@ -78,28 +72,36 @@ namespace Ex04.Menus.Interfaces
                 catch (Exception thrownException)
                 {
                     Console.WriteLine(thrownException.Message);
+                    delayScreenClear();
                 }
             }
         }
 
-        private MenuItem handleUserInput(MenuItem i_currentMenuItemLevel)
+        private bool handleUserInput(MenuItem i_currentMenuItemLevel)
         {
-            MenuItem menuItemFromUserChoice;
+            bool userPressedExit = false;
             bool userChoiceParsedSuccessfully = int.TryParse(Console.ReadLine(), out int userChoice);
             int numOfElementsInMenu = i_currentMenuItemLevel.GetSubMenuItems().Count;
 
-            if (userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
+            if(userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
             {
                 if(userChoice == 0)
                 {
-                    menuItemFromUserChoice = i_currentMenuItemLevel.ParentNode;
+                    if(i_currentMenuItemLevel.ParentNode == null)
+                    {
+                        userPressedExit = true;
+                    }
+                    else
+                    {
+                        i_currentMenuItemLevel.ParentNode.Selected = v_SelectMenuItem;
+                    }
                 }
                 else
                 {
-                    menuItemFromUserChoice = i_currentMenuItemLevel.GetSubMenuItems().ElementAt(userChoice - 1);
+                    i_currentMenuItemLevel.GetSubMenuItems().ElementAt(userChoice - 1).Selected = v_SelectMenuItem;
                 }
-                
-                return menuItemFromUserChoice;
+
+                return userPressedExit;
             }
             else
             {
@@ -112,6 +114,12 @@ namespace Ex04.Menus.Interfaces
                     throw new ArgumentException(string.Format("Your choice must be between 0 and {0}!", numOfElementsInMenu));
                 }
             }
+        }
+
+        private void delayScreenClear()
+        {
+            Console.WriteLine("Press enter to continue");
+            Console.ReadLine();
         }
     }
 }

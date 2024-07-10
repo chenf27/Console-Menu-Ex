@@ -16,7 +16,7 @@ namespace Ex04.Menus.Events
         }
     }
 
-    public delegate void MenuItemSelectedEventHandler(object sender, MenuItemSelectedEventArgs e);
+    public delegate void MenuItemSelectedEventHandler(object sender, MenuItemSelectedEventArgs e); // TODO change param names
 
     public class MenuItem
     {
@@ -35,17 +35,14 @@ namespace Ex04.Menus.Events
             r_Title = i_Title;
             r_IsMenu = i_IsMenu;
 
-            if (i_IsMenu)
+            if(i_IsMenu)
             {
                 r_SubMenuItems = new List<MenuItem>();
             }
         }
 
-        public MenuItem(MenuItem i_ParentNode, string i_Title, Action i_MenuAction)
+        public MenuItem(MenuItem i_ParentNode, string i_Title, Action i_MenuAction) : this(i_ParentNode, i_Title, !v_Menu)
         {
-            r_ParentNode = i_ParentNode;
-            r_Title = i_Title;
-            r_IsMenu = !v_Menu;
             r_MethodDelegate = i_MenuAction;
         }
 
@@ -88,14 +85,14 @@ namespace Ex04.Menus.Events
 
         internal void Show()
         {
-            if (IsMenu)
+            if(IsMenu)
             {
                 int itemIndexInList = 1;
                 string backOrExitPrompt = r_ParentNode == null ? "Exit" : "Back";
 
                 Console.WriteLine(Title);
                 Console.WriteLine("==============");
-                foreach (MenuItem item in r_SubMenuItems)
+                foreach(MenuItem item in r_SubMenuItems)
                 {
                     Console.WriteLine("{0}. {1}", itemIndexInList++, item.Title);
                 }
@@ -107,7 +104,7 @@ namespace Ex04.Menus.Events
 
         internal void AddSubMenuItem(MenuItem i_SubMenuItem)
         {
-            if (r_IsMenu)
+            if(r_IsMenu)
             {
                 r_SubMenuItems.Add(i_SubMenuItem);
             }
@@ -120,7 +117,7 @@ namespace Ex04.Menus.Events
 
         protected virtual void OnMenuItemSelectOccurred(MenuItemSelectedEventArgs i_EventArguments)
         {
-            if (MenuItemSelectOccurred != null)
+            if(MenuItemSelectOccurred != null)
             {
                 MenuItemSelectOccurred.Invoke(this, i_EventArguments);
             }
