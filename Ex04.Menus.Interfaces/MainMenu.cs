@@ -55,15 +55,15 @@ namespace Ex04.Menus.Interfaces
 
         public void Show()
         {
+            bool userPressedExit;
+
             while(true)
             {
                 try
                 {
-                    bool userPressedExit;
-
                     Console.Clear();
                     m_CurrentMenuLevel.Show();
-                    userPressedExit = handleUserInput(m_CurrentMenuLevel);
+                    userPressedExit = handleUserInput();
                     if(userPressedExit)
                     {
                         break;
@@ -77,28 +77,28 @@ namespace Ex04.Menus.Interfaces
             }
         }
 
-        private bool handleUserInput(MenuItem i_currentMenuItemLevel)
+        private bool handleUserInput()
         {
             bool userPressedExit = false;
             bool userChoiceParsedSuccessfully = int.TryParse(Console.ReadLine(), out int userChoice);
-            int numOfElementsInMenu = i_currentMenuItemLevel.GetSubMenuItems().Count;
+            int numOfElementsInMenu = m_CurrentMenuLevel.GetSubMenuItems().Count;
 
             if(userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
             {
                 if(userChoice == 0)
                 {
-                    if(i_currentMenuItemLevel.ParentNode == null)
+                    if(m_CurrentMenuLevel.ParentNode == null)
                     {
                         userPressedExit = true;
                     }
                     else
                     {
-                        i_currentMenuItemLevel.ParentNode.Selected = v_SelectMenuItem;
+                        m_CurrentMenuLevel.ParentNode.Selected = v_SelectMenuItem;
                     }
                 }
                 else
                 {
-                    i_currentMenuItemLevel.GetSubMenuItems().ElementAt(userChoice - 1).Selected = v_SelectMenuItem;
+                    m_CurrentMenuLevel.GetSubMenuItems().ElementAt(userChoice - 1).Selected = v_SelectMenuItem;
                 }
 
                 return userPressedExit;

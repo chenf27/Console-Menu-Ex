@@ -17,10 +17,10 @@ namespace Ex04.Menus.Test
             MenuItem mainMenuItem = mainMenu.MainMenuItem;
             MenuItem versionsAndCapitalsMenu = new MenuItem(mainMenuItem, "Versions and Capitals", v_IsMenu);
             MenuItem showDateTimeMenu = new MenuItem(mainMenuItem, "Show Date/Time", v_IsMenu);
-            MenuItem showTime = new MenuItem(showDateTimeMenu, "Show Time", showTimeAction);
-            MenuItem showDate = new MenuItem(showDateTimeMenu, "Show Date", showDateAction);
             MenuItem showVersion = new MenuItem(versionsAndCapitalsMenu, "Show Version", showVersionAction);
             MenuItem showCapitals = new MenuItem(versionsAndCapitalsMenu, "Count Capitals", CountCapitalLetters);
+            MenuItem showTime = new MenuItem(showDateTimeMenu, "Show Time", showTimeAction);
+            MenuItem showDate = new MenuItem(showDateTimeMenu, "Show Date", showDateAction);
 
             mainMenu.AddMenuItem(mainMenuItem, versionsAndCapitalsMenu);
             mainMenu.AddMenuItem(mainMenuItem, showDateTimeMenu);

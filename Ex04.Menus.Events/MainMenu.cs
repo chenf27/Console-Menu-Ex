@@ -14,8 +14,8 @@ namespace Ex04.Menus.Events
         public MainMenu(string i_Title)
         {
             r_MainMenu = new MenuItem(null, i_Title, v_IsMenu);
+            r_MainMenu.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(menuItemSelectOccurredHandler);
             m_CurrentItem = r_MainMenu;
-            r_MainMenu.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(MenuItemSelectOccurredHandler);
         }
 
         public MenuItem MainMenuItem
@@ -31,7 +31,7 @@ namespace Ex04.Menus.Events
             if(i_ParentMenu.IsMenu)
             {
                 i_ParentMenu.AddSubMenuItem(i_SubMenuItem);
-                i_SubMenuItem.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(MenuItemSelectOccurredHandler);
+                i_SubMenuItem.MenuItemSelectOccurred += new MenuItemSelectedEventHandler(menuItemSelectOccurredHandler);
             }
             else
             {
@@ -39,12 +39,12 @@ namespace Ex04.Menus.Events
             }
         }
 
-        private void MenuItemSelectOccurredHandler(object i_Sender, MenuItemSelectedEventArgs i_EventArguments)
+        private void menuItemSelectOccurredHandler(object i_Sender, MenuItemSelectedEventArgs i_EventArguments)
         {
             m_CurrentItem = i_EventArguments.SelectedMenuItem;
             if(!m_CurrentItem.IsMenu)
             {
-                ExecuteAction();
+                executeAction();
                 if(m_CurrentItem.ParentNode != null)
                 {
                     m_CurrentItem = m_CurrentItem.ParentNode;
@@ -52,7 +52,7 @@ namespace Ex04.Menus.Events
             }
         }
 
-        private void ExecuteAction()
+        private void executeAction()
         {
             if(m_CurrentItem.Method != null)
             {
@@ -63,16 +63,16 @@ namespace Ex04.Menus.Events
 
         public void Show()
         {
+            bool userPressedExit;
+
             while(true)
             {
                 try
                 {
-                    bool userPressedExit;
-
                     Console.Clear();
                     m_CurrentItem.Show();
                     userPressedExit = handleUserInput();
-                    if (userPressedExit)
+                    if(userPressedExit)
                     {
                         break;
                     }
@@ -95,7 +95,7 @@ namespace Ex04.Menus.Events
             {
                 if(userChoice == 0)
                 {
-                    if (m_CurrentItem.ParentNode == null)
+                    if(m_CurrentItem.ParentNode == null)
                     {
                         userPressedExit = true;
                     }
