@@ -16,7 +16,7 @@ namespace Ex04.Menus.Events
         }
     }
 
-    public delegate void MenuItemSelectedEventHandler(object sender, MenuItemSelectedEventArgs e); // TODO change param names
+    public delegate void MenuItemSelectedEventHandler(object sender, MenuItemSelectedEventArgs eventArgs);
 
     public class MenuItem
     {

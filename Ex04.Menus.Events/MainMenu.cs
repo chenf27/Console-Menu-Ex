@@ -41,47 +41,41 @@ namespace Ex04.Menus.Events
 
         private void MenuItemSelectOccurredHandler(object i_Sender, MenuItemSelectedEventArgs i_EventArguments)
         {
-            MenuItem menuItem = i_EventArguments.SelectedMenuItem;
-            if(!menuItem.IsMenu)
+            m_CurrentItem = i_EventArguments.SelectedMenuItem;
+            if(!m_CurrentItem.IsMenu)
             {
-                ExecuteAction(menuItem);
+                ExecuteAction();
+                if(m_CurrentItem.ParentNode != null)
+                {
+                    m_CurrentItem = m_CurrentItem.ParentNode;
+                }
             }
         }
 
-        private void ExecuteAction(MenuItem i_MenuItem)
+        private void ExecuteAction()
         {
-            if(i_MenuItem.Method != null)
+            if(m_CurrentItem.Method != null)
             {
-                i_MenuItem.Method.Invoke();
+                m_CurrentItem.Method.Invoke();
+                delayScreenClear();
             }
         }
 
-        public void Show() //TOTO fix screen clear
+        public void Show()
         {
             while(true)
             {
                 try
                 {
+                    bool userPressedExit;
+
                     Console.Clear();
                     m_CurrentItem.Show();
-                    MenuItem menuItemFromUserChoice = handleUserInput(m_CurrentItem);
-                    if(menuItemFromUserChoice != null)
-                    {
-                        if(menuItemFromUserChoice.IsMenu)
-                        {
-                            m_CurrentItem = menuItemFromUserChoice;
-                        }
-                        else
-                        {
-                            m_CurrentItem = menuItemFromUserChoice.ParentNode;
-                        }
-                        menuItemFromUserChoice.MenuItemSelected();  
-                    }
-                    else
+                    userPressedExit = handleUserInput();
+                    if (userPressedExit)
                     {
                         break;
                     }
-
                 }
                 catch (Exception thrownException)
                 {
@@ -91,24 +85,31 @@ namespace Ex04.Menus.Events
             }
         }
 
-        private MenuItem handleUserInput(MenuItem i_currentMenuItemLevel)
+        private bool handleUserInput()
         {
-            MenuItem menuItemFromUserChoice;
+            bool userPressedExit = false;
             bool userChoiceParsedSuccessfully = int.TryParse(Console.ReadLine(), out int userChoice);
-            int numOfElementsInMenu = i_currentMenuItemLevel.GetSubMenuItems().Count;
+            int numOfElementsInMenu = m_CurrentItem.GetSubMenuItems().Count;
 
             if(userChoiceParsedSuccessfully && userChoice >= 0 && userChoice <= numOfElementsInMenu)
             {
                 if(userChoice == 0)
                 {
-                    menuItemFromUserChoice = i_currentMenuItemLevel.ParentNode;
+                    if (m_CurrentItem.ParentNode == null)
+                    {
+                        userPressedExit = true;
+                    }
+                    else
+                    {
+                        m_CurrentItem = m_CurrentItem.ParentNode;
+                    }
                 }
                 else
                 {
-                    menuItemFromUserChoice = i_currentMenuItemLevel.GetSubMenuItems().ElementAt(userChoice - 1);
+                    m_CurrentItem.GetSubMenuItems().ElementAt(userChoice - 1).MenuItemSelected();
                 }
 
-                return menuItemFromUserChoice;
+                return userPressedExit;
             }
             else
             {
